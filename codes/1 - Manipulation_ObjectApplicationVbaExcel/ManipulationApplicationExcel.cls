@@ -61,8 +61,8 @@ End Function
 
 
 Private Function DesactiveOperationTheWorkBookExcelSpecific()
-    ' O código application.interactive = true desabilita todas as operações de determinada pasta de trabalho,
-    ' desta forma tenha sempre muito cuidado ao utilizar esta interação.
+    ' O cï¿½digo application.interactive = true desabilita todas as operaï¿½ï¿½es de determinada pasta de trabalho,
+    ' desta forma tenha sempre muito cuidado ao utilizar esta interaï¿½ï¿½o.
     Application.Interactive = True
 End Function
 
@@ -71,17 +71,17 @@ Private Function ActivateOperationTheWorkBookExcelSpecific()
 End Function
 
 Private Function HiddenModificationWithCode()
-    ' Definir a propriedade ScreenUpdating como False para ocultar as alterações enquanto elas são feitas via código;
+    ' Definir a propriedade ScreenUpdating como False para ocultar as alteraï¿½ï¿½es enquanto elas sï¿½o feitas via cï¿½digo;
     Application.ScreenUpdating = False
 End Function
 
 Private Function ShowModificationWithCode()
-    Application.ScreenUpdating = False
+    Application.ScreenUpdating = True
 End Function
 
 Private Function DisableFullScreen()
-    ' O objeto application com o método displayfullscreen permite retirar alguns elementos e deixar o Excel
-    ' com a tela mais limpa, porém não deixa a tela tão limpa assim.
+    ' O objeto application com o mï¿½todo displayfullscreen permite retirar alguns elementos e deixar o Excel
+    ' com a tela mais limpa, porï¿½m nï¿½o deixa a tela tï¿½o limpa assim.
     Application.DisplayFullScreen = True
 End Function
 
@@ -90,9 +90,9 @@ Private Function EnebleFullScreen()
 End Function
 
 Private Function DesableScrollBars()
-    ' Este código permite ocultar ou reexibir as duas barras de rolagens de uma vez,
+    ' Este cï¿½digo permite ocultar ou reexibir as duas barras de rolagens de uma vez,
     ' Seja ela: horizontal ou vertical
-    ' e esta definição se dá pelo nome aplicado na propriedade true ou false.
+    ' e esta definiï¿½ï¿½o se dï¿½ pelo nome aplicado na propriedade true ou false.
     
     Application.DisplayScrollBars = False
 
@@ -103,7 +103,7 @@ Private Function EnableScrollBars()
 End Function
 
 Private Function DesableFormulaBar()
-    ' Para interagir com a barra de fórmulas será preciso utilizar o objeto application com o método displayformulabar.
+    ' Para interagir com a barra de fï¿½rmulas serï¿½ preciso utilizar o objeto application com o mï¿½todo displayformulabar.
     Application.DisplayFormulaBar = False
 End Function
 
@@ -128,7 +128,7 @@ End Function
 
 Private Function DisableAlertsExcel()
     
-    ' Application.DisplayAlerts controla se o Excel vai mostrar ou esconder as janelas de aviso enquanto o código está rodando.
+    ' Application.DisplayAlerts controla se o Excel vai mostrar ou esconder as janelas de aviso enquanto o cï¿½digo estï¿½ rodando.
     Application.DisplayAlerts = False
 
 End Function
@@ -143,7 +143,7 @@ End Function
 
 Private Function DialogFindFile()
     
-    ' O método FindFile permite que o usuário selecione um arquivo a ser aberto no Excel;
+    ' O mï¿½todo FindFile permite que o usuï¿½rio selecione um arquivo a ser aberto no Excel;
     ' Esse arquivo vai ser outra pasta de trabalho
     Application.FindFile
 
@@ -151,7 +151,7 @@ End Function
 
 Private Function DialogsWithApplicationCollection()
     
-    ' O método Dialogs exibir caixas de diálogos do Excel
+    ' O mï¿½todo Dialogs exibir caixas de diï¿½logos do Excel
     
     Application.Dialogs(XlBuiltInDialog.xlDialogOpen).Show
 
@@ -159,7 +159,7 @@ End Function
 
 Private Function getFileDialog()
 
-    ' O método FileDialog obtem os nomes de arquivos e pastas;
+    ' O mï¿½todo FileDialog obtem os nomes de arquivos e pastas;
     Application.FileDialog
     
 End Function
@@ -174,7 +174,7 @@ Private Function inputBoxDialog()
                 Title:="QUAL O SEU NOME", _
                 Default:="seu nome")
     
-    MsgBox "Seu nome é: " & nome
+    MsgBox "Seu nome ï¿½: " & nome
     
 End Function
 
@@ -212,7 +212,7 @@ Sub ManipulationAllObjectTheCollectionApplicationToExcel()
     
     
     ' Salvando WorkBook Ativo
-    ' Lembrando que o Workbook ativo é exatamente: A pasta ativa é sempre aquela selecionada no momento
+    ' Lembrando que o Workbook ativo ï¿½ exatamente: A pasta ativa ï¿½ sempre aquela selecionada no momento
     ' Desta forma equivale ao ActivateWorkbook.save
     ' Ele sempre salva apenas a que estiver em foco no momento, o workbook e o worksheet em foco
     
