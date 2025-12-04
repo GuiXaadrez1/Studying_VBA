@@ -9,32 +9,32 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Option Explicit
 
-' lembrando que o método Worbook("Nome_Pasta_Trabalho").Activate
-' irá funcionar apenas se a pasta de trabalho estiver aberta.
-' E sendo trabalhado no momento ou seja, para a pasta que você está mexendo atualmente
-' Se a pasta de trabalho estiver fechada, você precisará fornecer o caminho completo.
-' Com: Workbooks.Open ("C:\Usuários\JoãoPC2\Downloads\Pasta2.xlsm")
+' lembrando que o mï¿½todo Worbook("Nome_Pasta_Trabalho").Activate
+' irï¿½ funcionar apenas se a pasta de trabalho estiver aberta.
+' E sendo trabalhado no momento ou seja, para a pasta que vocï¿½ estï¿½ mexendo atualmente
+' Se a pasta de trabalho estiver fechada, vocï¿½ precisarï¿½ fornecer o caminho completo.
+' Com: Workbooks.Open ("C:\Usuï¿½rios\Joï¿½oPC2\Downloads\Pasta2.xlsm")
 
 Private Function UsingWorkbookOpenActivete(ByVal nameWorkBook As String) As Workbook
     
-    '   On Error ->  é a principal forma de tratamento de "Erro em Tempo de Execução" do VBA, informando o VBA o que fazer quando um erro desse tipo for encontrado.
-    '   On Error pode ser utilizado de três maneiras:
+    '   On Error ->  ï¿½ a principal forma de tratamento de "Erro em Tempo de Execuï¿½ï¿½o" do VBA, informando o VBA o que fazer quando um erro desse tipo for encontrado.
+    '   On Error pode ser utilizado de trï¿½s maneiras:
     '
-    '   On Error GoTo <Rótulo> -> Caso ocorra um erro, a execução irá pular para uma linha definida, geralmente ao final do código
-    '   On Error Resume Next -> ara continuar a execução mesmo em caso de erro
-    '   On Error GoTo 0 ->  é a opção padrão do VBA. Em caso de erro, a execução será interrompida e uma a mensagem de erro aparecerá
+    '   On Error GoTo <Rï¿½tulo> -> Caso ocorra um erro, a execuï¿½ï¿½o irï¿½ pular para uma linha definida, geralmente ao final do cï¿½digo
+    '   On Error Resume Next -> ara continuar a execuï¿½ï¿½o mesmo em caso de erro
+    '   On Error GoTo 0 ->  ï¿½ a opï¿½ï¿½o padrï¿½o do VBA. Em caso de erro, a execuï¿½ï¿½o serï¿½ interrompida e uma a mensagem de erro aparecerï¿½
     
     On Error GoTo tratamentoError
         
         Dim WorkBookName As String
-        Dim wb As Workbook          ' <-- ADICIONADO: você precisa de uma variável Workbook
+        Dim wb As Workbook          ' <-- ADICIONADO: vocï¿½ precisa de uma variï¿½vel Workbook
         
-        ' *** CORREÇÃO: Workbooks(nameWorkBook).Activate NÃO RETORNA OBJETO ***
-        Set wb = Workbooks(nameWorkBook)  ' pega o Workbook da coleção
+        ' *** CORREï¿½ï¿½O: Workbooks(nameWorkBook).Activate Nï¿½O RETORNA OBJETO ***
+        Set wb = Workbooks(nameWorkBook)  ' pega o Workbook da coleï¿½ï¿½o
         
-        wb.Activate                         ' ativa — este método não retorna nada
+        wb.Activate                         ' ativa ï¿½ este mï¿½todo nï¿½o retorna nada
         
-        WorkBookName = wb.Name
+        WorkBookName = wb.name
         
         Set UsingWorkbookOpenActivete = wb  ' retorna o Workbook correto
         
@@ -46,7 +46,7 @@ Private Function UsingWorkbookOpenActivete(ByVal nameWorkBook As String) As Work
             
         End If
 
-    Exit Function    ' <-- NECESSÁRIO para não executar o handler sem erro
+    Exit Function    ' <-- NECESSï¿½RIO para nï¿½o executar o handler sem erro
 
 tratamentoError:
         MsgBox "ocorreu o seguinte Error: " & Err.Description
@@ -54,8 +54,71 @@ tratamentoError:
 End Function
 
 
+' Abrindo e ativando uma pasta de trabalho com Workboos.Open("nome_caminho_path_file")
+Private Function UsingWorkBookOpenActivateOpeningWithWorkbooksCollection(ByVal pathFile As String) As Object
+    
+    On Error Resume Next
+        
+        ' Diferente do Anterior usamos para abrir a pasta Excel com um caminho especï¿½fico daquele arquivo...
+        Set UsingWorkBookOpenActivateOpeningWithWorkbooksCollection = Workbooks.Open(pathFile)
+         
+End Function
+
+' ThisWorkbook.Path ï¿½ uma propriedade que retorna somente o caminho da pasta onde estï¿½ salvo o arquivo que contï¿½m o cï¿½digo VBA.
+Private Function ReturnPathFileWithVBA(ByVal nameArchiveExcel As String) As String
+    
+    ' Exemplo: Caminho Absoluto do arquivo -> C:\Users\Guilherme\Documents\Projetos\ControleEstoque.xlsm
+    ' ThisWorkBook.Path vai retornar apenas -> C:\Users\Guilherme\Documents\Projetos
+    ' Perceba que ele nï¿½o coloca a barra "\" automaticamente no final do caminho.
+    ' Para isso precisamos concatenar manualmente com &
+    ' Exemplo: ThisWorkbook.Path & "\nomes.xlsx"
+    
+    ' OBSERVAï¿½ï¿½O -> ï¿½ NECESSï¿½RIO Salvar o arquivo que contï¿½m o cï¿½digo
+    ' PARA A PROPRIEDADE FUNCIONAR ADEQUADAMENTE
+    
+    On Error Resume Next
+    
+    MsgBox "PATH atual: " & ThisWorkbook.Path
+    
+    ReturnPathFileWithVBA = ThisWorkbook.Path & "\" & nameArchiveExcel
+
+End Function
+
+
+Private Function UsingPropertyThisWorkbookPathForOpeningWorkbooksWithVba(nameFileExcel As String) As Workbook
+    
+    On Error GoTo trata
+
+        Set UsingPropertyThisWorkbookPathForOpeningWorkbooksWithVba = _
+            Workbooks.Open(ReturnPathFileWithVBA(nameFileExcel))
+    
+        Exit Function
+
+trata:
+    MsgBox "Erro ao abrir o arquivo: " & Err.Description & vbCrLf & _
+           "Caminho: " & ReturnPathFileWithVBA(nameFileExcel)
+
+End Function
+
+
+Private Function UsingVariablesTheEnvironmentForOpeningWorkbooks()
+    
+    ' Usamos a funï¿½ï¿½o ou mï¿½todo Environ("variï¿½vel de ambiente")
+    ' justamente para acessar e usar uma variï¿½vel de ambiente espeficia do Host/Sistema Operacional (computador)
+
+    UsingVariablesTheEnvironmentForOpeningWorkbooks = Environ("USERPROFILE") & "\Downloads\" & nameArchiveExcel
+    
+    ' Aqui construimos um caminho absoluto para acessar os arquivos excel que estï¿½o na pasta Downloads
+
+End Function
 
 Sub ManipulationObjectWorkbooksInCollectionWorkbooks()
-    UsingWorkbookOpenActivete ("LagoSul_VBA.xlsx")
+    
+    ' UsingWorkbookOpenActivete ("LagoSul_VBA.xlsx")
+    
+    ' UsingWorkBookOpenActivateOpeningWithWorkbooksCollection ("C:\Users\guilherme.henrique\Downloads\LagoSul_VBA.xlsx")
+  
+    ' UsingPropertyThisWorkbookPathForOpeningWorkbooksWithVba ("LagoSul_VBA.xlsx")
+    
 End Sub
 
