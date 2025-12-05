@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Option Explicit
 
-' Basicamente essa função vai adicionar uma nova planilha e ativar ela
+' Basicamente essa funï¿½ï¿½o vai adicionar uma nova planilha e ativar ela
 Private Function AddNewSheetWithObjectCollectionWorkSheets() As Worksheet
     
     Set AddNewSheetWithObjectCollectionWorkSheets = Worksheets.add
@@ -19,25 +19,25 @@ Private Function AddNewSheetWithObjectCollectionWorkSheets() As Worksheet
     
 End Function
 
-' Antes de uma planilha específica, vamos criar ela e ativar
+' Antes de uma planilha especï¿½fica, vamos criar ela e ativar
 Private Function AddNewSheetWithObjectCollectionWorkSheetsBeforeOtherSheet(ByVal nameOtherSheet As String) As Worksheet
     
-    ' Validando se a planilha não existe
+    ' Validando se a planilha nï¿½o existe
     If Not SheetExists(nameOtherSheet) Then
     
-        Err.Raise vbObjectError + 1000, , "A planilha '" & nameOtherSheet & "' não existe."
+        Err.Raise vbObjectError + 1000, , "A planilha '" & nameOtherSheet & "' nï¿½o existe."
     
     End If
     
-    ' Após a validação, Criar a planilha CASO ELA NÃO EXISTA
+    ' Apï¿½s a validaï¿½ï¿½o, Criar a planilha CASO ELA Nï¿½O EXISTA
     
     Set AddNewSheetWithObjectCollectionWorkSheetsBeforeOtherSheet = Worksheets.add(Before:=Worksheets(nameOtherSheet))
     
-    ' := -> É o operador de atribuição nomeada de parâmetros
-    ' Basicamente, ele permite que você especifique qual argumento de um método está rescebendo um valor
+    ' := -> ï¿½ o operador de atribuiï¿½ï¿½o nomeada de parï¿½metros
+    ' Basicamente, ele permite que vocï¿½ especifique qual argumento de um mï¿½todo estï¿½ rescebendo um valor
     ' neste caso estamos passado o argumento nomeado "Before"
-    ' Sem := o VBA não saberia a qual parâmetro você está se referindo, porque o método .Add tem vários argumentos opcionais.
-    ' Resumidamente, := -> Informar qual parâmetro da função está sendo passado
+    ' Sem := o VBA nï¿½o saberia a qual parï¿½metro vocï¿½ estï¿½ se referindo, porque o mï¿½todo .Add tem vï¿½rios argumentos opcionais.
+    ' Resumidamente, := -> Informar qual parï¿½metro da funï¿½ï¿½o estï¿½ sendo passado
     
     AddNewSheetWithObjectCollectionWorkSheetsBeforeOtherSheet.Name = "AddAntesPlanilha" & nameOtherSheet
     
@@ -46,13 +46,13 @@ Private Function AddNewSheetWithObjectCollectionWorkSheetsBeforeOtherSheet(ByVal
         
 End Function
 
-' Depois de uma planilha específica, vamos criar ela e ativar
+' Depois de uma planilha especï¿½fica, vamos criar ela e ativar
 
 Private Function AddNewSheetWithObjectCollectionWorkSheetsAfterOtherSheet(ByVal nameOtherSheet As String) As Worksheet
 
     If Not SheetExists(nameOtherSheet) Then
     
-        Err.Raise vbObjectError + 1000, , "A planilha '" & nameOtherSheet & "' não existe."
+        Err.Raise vbObjectError + 1000, , "A planilha '" & nameOtherSheet & "' nï¿½o existe."
     
     End If
 
@@ -67,7 +67,7 @@ End Function
 ' Depois da ultima planilha vamos criar uma outra e ativar a mesma
 Private Function AddNewSheetWithObjectCollectionWorkSheetsAftherLastSheet() As Worksheet
     
-    'Definindo uma variável
+    'Definindo uma variï¿½vel
     Dim ContSheets As Integer
     
     ContSheets = Worksheets.Count ' Essa propriedade vai retorar a quantidade total de planilhas nesta pasta de trabalho (WorkBook)
@@ -84,22 +84,22 @@ Private Function AddNewSheetWithObjectCollectionWorkSheetsAftherLastSheet() As W
 End Function
 
 
-' Criando uma Função Auxiliar as Outras Funções
+' Criando uma Funï¿½ï¿½o Auxiliar as Outras Funï¿½ï¿½es
 
 ' ----------------------------------------------------------
 ' Verifica se uma planilha existe no Workbook atual.
-' Aceita nome (String) ou índice numérico.
-' Retorna True se existir, False se não existir.
+' Aceita nome (String) ou ï¿½ndice numï¿½rico.
+' Retorna True se existir, False se nï¿½o existir.
 ' ----------------------------------------------------------
 
 Private Function SheetExists(ByVal sheetIdentifier As Variant) As Boolean
     
     ' Variant -> Tipo dedo que atende os dois casos.
     
-    Dim ws As Worksheet ' Criando uma variável que armazena um objeto Worksheet
+    Dim ws As Worksheet ' Criando uma variï¿½vel que armazena um objeto Worksheet
     
     ' Definindo Tratamento de Error
-    On Error Resume Next ' Se acontecer um erro na próxima linha, não pare o código. Apenas continue
+    On Error Resume Next ' Se acontecer um erro na prï¿½xima linha, nï¿½o pare o cï¿½digo. Apenas continue
         
         Set ws = Worksheets(sheetIdentifier) ' Referenciando esse objeto Worksheet para adquirir e acessar todos seus atributos, metodos e propriedades
     
@@ -112,10 +112,10 @@ End Function
 
 Sub ExcutionFunctions()
     
-    ' Agora vamos usar nossas funções!
+    ' Agora vamos usar nossas funï¿½ï¿½es!
     
-    ' Adicionando Planilhs, rsrsrs, basicamente essa função faz a mesma coisa que WorkSheets.add
-    ' A unica diferença é que ele ativa a planilha para ser trabalhada
+    ' Adicionando Planilhs, rsrsrs, basicamente essa funï¿½ï¿½o faz a mesma coisa que WorkSheets.add
+    ' A unica diferenï¿½a ï¿½ que ele ativa a planilha para ser trabalhada
     AddNewSheetWithObjectCollectionWorkSheets ' Adicionar Planilha 2
     
     'AddNewSheetWithObjectCollectionWorkSheetsBeforeOtherSheet ("Planilha3")
@@ -128,7 +128,7 @@ Sub ExcutionFunctions()
         AddNewSheetWithObjectCollectionWorkSheetsAftherLastSheet
     End If
     
-    ' Para liberar Espaço na memória -> Deletando Planilha
+    ' Para liberar Espaï¿½o na memï¿½ria -> Deletando Planilha
     'AddNewSheetWithObjectCollectionWorkSheetsBeforeOtherSheet.Delete
     'AddNewSheetWithObjectCollectionWorkSheetsAfterOtherSheet.Delete
          
