@@ -9,28 +9,28 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Option Explicit
 
-' A operação direta célula-a-célula é lenta porque cada acesso a uma célula envolve:
+' A operaï¿½ï¿½o direta cï¿½lula-a-cï¿½lula ï¿½ lenta porque cada acesso a uma cï¿½lula envolve:
 
-' Entrada/saída (I/O) com o Excel
+' Entrada/saï¿½da (I/O) com o Excel
 
-' Sincronização COM
+' Sincronizaï¿½ï¿½o COM
 
-' Atualização visual / volátil
+' Atualizaï¿½ï¿½o visual / volï¿½til
 
-' A solução profissional é:
+' A soluï¿½ï¿½o profissional ï¿½:
 
-' Carregar o Range inteiro para uma matriz VBA, processá-la na memória e devolvê-la ao Range.
+' Carregar o Range inteiro para uma matriz VBA, processï¿½-la na memï¿½ria e devolvï¿½-la ao Range.
 
 Private Function ReadRangeAsMatrix(intervalMatriz As String) As Variant
     
-    ' Lembrando que Matriz possui duas dimensoes, ou seja, são bidimensionais
-    ' Ou seja, altura e largura, neste caso, uma tabela do Excel é uma matriz
+    ' Lembrando que Matriz possui duas dimensoes, ou seja, sï¿½o bidimensionais
+    ' Ou seja, altura e largura, neste caso, uma tabela do Excel ï¿½ uma matriz
 
     ReadRangeAsMatrix = Range(intervalMatriz).Value
         
     ' ReadRangeAsMatrix.Value = "Matriz Criada"
      
-    ' Debug.Print "Foi Realizado a criação da Matriz com Range"
+    ' Debug.Print "Foi Realizado a criaï¿½ï¿½o da Matriz com Range"
    
 End Function
 
@@ -39,7 +39,7 @@ Sub ManipulationObjectRangeInCollectionsRangeWithMatriz()
     
     Dim Matriz As Variant
     
-    ' Descobrindo os limites (dimensoões) da Matriz
+    ' Descobrindo os limites (dimensoï¿½es) da Matriz
     
     Dim rOne As Long
     Dim rTwo As Long
@@ -51,21 +51,21 @@ Sub ManipulationObjectRangeInCollectionsRangeWithMatriz()
     Dim i As Long
     Dim j As Long
     
-    ' Craindo a nossa Matriz através do Range
+    ' Craindo a nossa Matriz atravï¿½s do Range
     Matriz = ReadRangeAsMatrix("A1:C1000")
     
     ' O VBA cria um array bidimensional com limites:
     ' Forma de criar Matriz Com VBA:
-    ' Matriz(1 To 10, 1 To 3) -> primeiro representa as linhas de 1 até 10 e o segunda as colunas de 1 ate 3
-    ' Lembrando que esses numeros são indexs...
+    ' Matriz(1 To 10, 1 To 3) -> primeiro representa as linhas de 1 atï¿½ 10 e o segunda as colunas de 1 ate 3
+    ' Lembrando que esses numeros sï¿½o indexs...
     
     ' Isso permite trabalhar com QUALQUER tamanho de Range.
-    rOne = LBound(Matriz, 1)
-    rTwo = UBound(Matriz, 1)
-    cOne = LBound(Matriz, 2)
-    cTwo = UBound(Matriz, 2)
+    rOne = LBound(Matriz, 1) ' Pega o limite inferior da primeira dimensï¿½o (linhas)
+    rTwo = UBound(Matriz, 1) ' Pega o limite superior da primeira dimensï¿½o (linhas)
+    cOne = LBound(Matriz, 2) ' Pega o limite inferior da segunda dimensï¿½o (colunas)
+    cTwo = UBound(Matriz, 2) ' pega o limite superior da segunda dimensï¿½o (colunas)
     
-    ' Iterando sobre a nossa Matriz e Aplicando valores em suas células
+    ' Iterando sobre a nossa Matriz e Aplicando valores em suas cï¿½lulas
     ' Perceba...
     
     For i = rOne To rTwo
@@ -73,13 +73,13 @@ Sub ManipulationObjectRangeInCollectionsRangeWithMatriz()
             
             ' Matriz(i, j) = "Matriz Preenchida com  Sucesso!"
             
-            ' Cells é um objeto collection Cells
+            ' Cells ï¿½ um objeto collection Cells
             
             Cells(i, j).Value = "Matriz Preenchida com  Sucesso!"
             
             Debug.Print "Linha " & i & " Coluna " & j & " = " & Matriz(i, j)
         Next j
-    Next i
+    Next i 
     
 End Sub
 
