@@ -1,3 +1,4 @@
+
 ' Criar uma código VBA que formate a coluna G de NCM da planilha principal'
 ' E insira parte do codigo em cada coluna especifica -> capitulo, posisao, etc...
 '
@@ -44,11 +45,12 @@ Const SheetCName As String = "PlanilhaC"
 Const Ignore9DigitsInSheetC As Boolean = True
 
 
-Private Function FormatarNcmPlanOne( _
+Private Function ReadFormatarNcmPlanOne( _
     Optional ByVal nameSheet As String = nameSheetPlanOne, _
     Optional indexStartRange As Long = indexCellFirstColumn, _
     Optional indexExecutionColumnPlanOne As Long = indexColumnPlanOne _
-) As Variant
+) As Variant ' Vai retonar uma Matriz 2D redimensioando para mais 5 colunas contendo todo o intervalo de dados formatados em memoria
+
     ' Planilha Principal
     Dim Sheet As Worksheet
     
@@ -121,7 +123,7 @@ Private Function FormatarNcmPlanOne( _
     ' Redimensiona a Matriz criada com o Range com  saída de 5 colunas
     ReDim MatrizOut(1 To rows, 1 To 5)
        
-    MsgBox "Degubando!" ' Até aqui passou
+    ' MsgBox "Degubando!" ' Até aqui passou
        
     For iRow = 1 To rows
         
@@ -167,104 +169,96 @@ Private Function FormatarNcmPlanOne( _
         
         cell = Left$(cell, 2) & "." & Mid$(cell, 3, 2) & "." & Mid$(cell, 5, 2) & "." & Mid$(cell, 7, 1) & "." & Mid$(cell, 8, 1)
         
-        Debug.Print "Acessando a celula na Linha: "; CStr(cell)
+        Debug.Print "Acessando a celula na Linha: " & CStr(iRow)
         
 ProximaLinha:
     Next iRow
     
-    FormatarNcmPlanOne = MatrizOut
+    ReadFormatarNcmPlanOne = MatrizOut
     
 End Function
 
-Private Function FormatarPlanilhaReducaoNcm( _
-    Optional ByVal nameSheet As String = nameSheetPlanTwo, _
-    Optional indexStartRangeReducaoNCM As Long = indexCellFirstColumnReducaoNCM, _
-    Optional indexExecutionColumnReducaoNCM As Long = indexCellColumnReducaoNCM _
-) As Range
 
-        Dim Sheet As Worksheet
-        
-        Dim cel As Range
-        Dim valueCel As String
-        Dim match As Object
-        
-        Dim rngNCM As Range
-           
-        ' Definindo variaveis dos MATCHES
-        Dim regexIdentificarServico As String
-        Dim regexCapNcm As String
-        Dim regexPosNcm As String
-        Dim regexSubPosValue As String
-        Dim regexItemValue As String
-        Dim regexSubItemValue As String
-                  
-        ' Materializando REGEX
-        Dim regexNcmNove As New RegExp
-        Dim regexNcmOito As New RegExp
-        Dim regexNcmSete As New RegExp
-        Dim regexNcmSeis As New RegExp
-        Dim regexNcmCinco As New RegExp ' Representam os codigos Genericos
-        Dim regexNcmQuatro As New RegExp
-        Dim regexNcmDois As New RegExp
-        Dim regexNcmUm As New RegExp
+
+Private Function ValidarRangeToFormat(ByVal interval As Range) As Boolean
     
-        ' Definindo a ultima linha do nosso intervalo de celula
-        Dim lastRow As Long
+    Dim Matriz As Variant
+    Dim i As Long
+    Dim j As Long
+    
+    Matriz = interval.Value
+    
+    
+    For i = LBound(Matriz, 1) To UBound(Matriz, 1)
+        For j = LBound(Matriz, 2) To UBound(Matriz, 2)
+            
+            If Matriz(i, j) = "" Then
+                ValidarRangeToFormat = False
+                Exit Function
+            End If
+        
+        Next j
+    Next i
+    
+    ' Se não encontrou vazios -> válido
+    ValidarRangeToFormat = True
+
+End Function
+
+Private Function ReadFormatarPlanilhaReducaoNcm( _
+    Optional ByVal sheetName As String = nameSheetPlanTwo, _
+    Optional indexStartRange As Long = indexCellFirstColumn, _
+    Optional indexExecutionColumnPlanOne As Long = indexColumnPlanOne _
+) As Variant
+    
+    Dim Sheet As Worksheet
+        
+    Dim RangeToMatriz As Variant
+     
+    Dim cel As Variant
+    'Dim valueCel As String
+     
+    ' Definindo a ultima linha do nosso intervalo de celula
+    Dim lastRow As Long
+    
+    ' Iteradores
+    Dim iRows As Long
+    Dim iColumn As Long
+    
+    Dim qtdCracteres As Long
     
     ' Ativando a nossa planilha ReducaoNCM
     
-    Set Sheet = Worksheets(nameSheet)
+    Set Sheet = Worksheets(sheetName)
         
     Sheet.Activate
     
     MsgBox "Clique Ok para formatar a Planilha: ReducaoNCM"
-    
-    ' Configuracao dos REGEX
-    With regexNcmNove
-        .Global = False
-        .Pattern = "(\d{1})(\d{2})(\d{2})(\d{2})(\d{1})(\d{1})"
-    End With
-    
-    With regexNcmOito
-        .Global = False
-        .Pattern = "(\d{2})(\d{2})(\d{2})(\d{1})(\d{1})"
-    End With
-    
-    With regexNcmSete
-        .Global = False
-        .Pattern = "(\d{2})(\d{2})(\d{2})(\d{1})"
-    End With
-    
-    With regexNcmSeis
-        .Global = False
-        .Pattern = "(\d{2})(\d{2})(\d{2})"
-    End With
-    
-    With regexNcmCinco ' Lembrando que estes vao idenficiar os gen?ricos
-        .Global = False
-        .Pattern = "(\d{2})(\d{2})(\d{1})"
-    End With
-    
-    With regexNcmQuatro
-        .Global = False
-        .Pattern = "(\d{2})(\d{2})"
-    End With
-    
-    With regexNcmDois
-        .Global = False
-        .Pattern = "(\d{2})"
-    End With
-    
-    With regexNcmUm
-        .Global = False
-        .Pattern = "(\d{1})"
-    End With
-    
-    ' Definindo a ultima linha
+                
+    ' Definindo a ultima linha Preenchida
     lastRow = Sheet.Cells(Sheet.rows.Count, indexExecutionColumnReducaoNCM).End(xlUp).Row
     
     ' Definindo o Range/Intervalo da coluna conforme a configuracao
-    Set rngNCM = Sheet.Range(Sheet.Cells(indexStartRangeReducaoNCM, indexExecutionColumnReducaoNCM), Sheet.Cells(lastRow, indexExecutionColumnReducaoNCM))
+    RangeToMatriz = Sheet.Range(Sheet.Cells(indexStartRangeReducaoNCM, indexExecutionColumnReducaoNCM), Sheet.Cells(lastRow, indexExecutionColumnReducaoNCM)).Value
+    
+    ' Descobrir dimensões reais para a MatrizOut
+    Dim rows As Long
+    
+    rows = UBound(RangeToMatriz, 1) ' Descobrindo o Limite susperior, ultimo index da linha na primeira coluna da matriz
+    
+    ' Redimensiona a Matriz criada com o Range com  saída de 5 colunas
+    ReDim MatrizOut(1 To rows, 1 To 5)
+    
+    
+    ' Agora vamos criar um iterador que pegue a quantidade de caracteres
+    ' distribuia os caracteres pelas demais colunas a direita
+    ' conforma a sua atribuicao: capitulo, posicao, subposicao "aqui pode ter genericos (5 caracteres)", itens, subitens
+    For iRows = 1 To rows
+    
+        
+     
+    Next iRows
+    
     
     ' Percorrendo cada celula
     For Each cel In rngNCM
@@ -556,15 +550,71 @@ Private Function CruzarNcmsPorNiveis(wsSrc As Worksheet, wsRed As Worksheet)
 End Function
 
 
+' Sub rotina publica auxilar flexivel que vamos usar para gravar os dados de qualquer matriz
+Private Sub GravarInSheet( _
+        ByVal nameSheet As String, _
+        ByVal indexStart As Long, _
+        ByVal indexColumn As Long)
+    
+    ' Criando uma Matriz de resultados com base na nossa funcao
+    Dim resultado As Variant
+    
+    resultado = ReadFormatarNcmPlanOne(nameSheet, indexStart, indexColumn)
+    
+    ' materializnado um objeto planilha
+    Dim Sheet As Worksheet
+    
+    ' usando a nossa planilha
+    Set Sheet = Worksheets(nameSheet)
+    
+    ' Ativando a nossa planilha
+    
+    Sheet.Activate
+    
+    ' variavel que vai representar o numero da ultima linha
+    Dim lastRow As Long
+            
+    lastRow = Sheet.Cells(Sheet.rows.Count, indexColumn).End(xlUp).Row
+
+    Sheet.Range(Sheet.Cells(indexStart, indexColumn + 1), _
+             Sheet.Cells(lastRow, indexColumn + 5)).Value = resultado
+    
+    MsgBox "Planilha NCM Formatada com Sucesso, bem como a distribuicao de cada item do codigo."
+
+End Sub
+
+
 Sub FormatarPlanilhasCruzarDados()
     
-    Dim resultado As Variant
-    resultado = FormatarNcmPlanOne(nameSheetPlanOne, indexCellFirstColumn, indexColumnPlanOne)
-    ' escreve resultado em colunas à direita da coluna de origem (col +1 até col +5)
-    Dim ws As Worksheet: Set ws = Worksheets(nameSheetPlanOne)
-    Dim lastRow As Long
-    lastRow = ws.Cells(ws.rows.Count, indexColumnPlanOne).End(xlUp).Row
-    ws.Range(ws.Cells(indexCellFirstColumn, indexColumnPlanOne + 1), _
-             ws.Cells(lastRow, indexColumnPlanOne + 5)).Value = resultado
+    
+    Dim Sheet As Worksheet
+    
+    Dim RangeValidation As Range
+    
+    Dim UltimaCell As Long
+    
+    Application.ScreenUpdating = False ' desativando atualizacao visivel do codigo na planilha para ser mais rapido
+            
+    ' Aplicando Lógica de Verificação de formatação...
+    
+    ' Set Sheet = Worksheets(nameSheetPlanOne)
+    
+    Set Sheet = Worksheets("Itens das NF-es Recebidas - Aut")
+    
+
+        
+    ' Atenção, se em algum momento a Planilha for modificada
+    ' Deve-se modificar os index definidos aqui em cada objeto Cells
+    
+    UltimaCell = Sheet.Cells(Sheet.rows.Count, 12).End(xlUp).Row
+    
+    Set RangeValidation = Sheet.Range(Sheet.Cells(4, 8), Sheet.Cells(UltimaCell, 12))
+    
+     If ValidarRangeToFormat(RangeValidation) = False Then
+        ' Range contém pelo menos uma célula vazia -> deve formatar
+        Call GravarInSheet(nameSheetPlanOne, indexCellFirstColumn, indexColumnPlanOne)
+    Else
+        MsgBox "A planilha já esta na formatação adequada."
+    End If
 
 End Sub
