@@ -1,4 +1,3 @@
-
 ' Criar uma código VBA que formate a coluna G de NCM da planilha principal'
 ' E insira parte do codigo em cada coluna especifica -> capitulo, posisao, etc...
 '
@@ -207,14 +206,15 @@ End Function
 
 Private Function ReadFormatarPlanilhaReducaoNcm( _
     Optional ByVal sheetName As String = nameSheetPlanTwo, _
-    Optional indexStartRange As Long = indexCellFirstColumn, _
-    Optional indexExecutionColumnPlanOne As Long = indexColumnPlanOne _
+    Optional indexStartRange As Long = indexCellFirstColumnReducaoNCM, _
+    Optional indexExecutionColumnPlanOne As Long = indexCellColumnReducaoNCM _
 ) As Variant
     
     Dim Sheet As Worksheet
         
     Dim RangeToMatriz As Variant
-     
+    
+    ' Representa a nossa celula bem com o seu valor
     Dim cel As Variant
     'Dim valueCel As String
      
@@ -225,21 +225,24 @@ Private Function ReadFormatarPlanilhaReducaoNcm( _
     Dim iRows As Long
     Dim iColumn As Long
     
-    Dim qtdCracteres As Long
+    ' Representa a qunatidade de caracteres que o valor da nossa celula tem
+    Dim qtdCaracteres As Long
     
     ' Ativando a nossa planilha ReducaoNCM
     
     Set Sheet = Worksheets(sheetName)
         
     Sheet.Activate
-    
-    MsgBox "Clique Ok para formatar a Planilha: ReducaoNCM"
                 
     ' Definindo a ultima linha Preenchida
-    lastRow = Sheet.Cells(Sheet.rows.Count, indexExecutionColumnReducaoNCM).End(xlUp).Row
+    lastRow = Sheet.Cells(Sheet.rows.Count, indexExecutionColumnPlanOne).End(xlUp).Row
     
     ' Definindo o Range/Intervalo da coluna conforme a configuracao
-    RangeToMatriz = Sheet.Range(Sheet.Cells(indexStartRangeReducaoNCM, indexExecutionColumnReducaoNCM), Sheet.Cells(lastRow, indexExecutionColumnReducaoNCM)).Value
+    RangeToMatriz = Sheet.Range(Sheet.Cells(indexStartRange, indexExecutionColumnPlanOne), _
+                             Sheet.Cells(lastRow, indexExecutionColumnPlanOne)).Value
+    
+    ' Definindo a Matriz de Saida desta funcao
+    Dim MatrizOut As Variant
     
     ' Descobrir dimensões reais para a MatrizOut
     Dim rows As Long
@@ -254,274 +257,83 @@ Private Function ReadFormatarPlanilhaReducaoNcm( _
     ' distribuia os caracteres pelas demais colunas a direita
     ' conforma a sua atribuicao: capitulo, posicao, subposicao "aqui pode ter genericos (5 caracteres)", itens, subitens
     For iRows = 1 To rows
-    
+           
+        ' Acessando a ceula nas coordenadas... (index_linha,index_coluna)
+        cel = RangeToMatriz(iRows, 1)
         
-     
+        ' Transfomando celula em string e tirando os espacos em branco do inicio e no fim da celula
+        cel = Trim(CStr(cel))
+        
+        ' Fazendo tratamento de strings
+        cel = Replace(cel, ".", "")
+        cel = Replace(cel, ",", "")
+        cel = Replace(cel, " ", "")
+        
+        qtdCaracteres = Len(cel)
+        
+        If qtdCaracteres = 0 Then
+            ' célula vazia
+            MatrizOut(iRows, 1) = ""
+            MatrizOut(iRows, 2) = ""
+            MatrizOut(iRows, 3) = ""
+            MatrizOut(iRows, 4) = ""
+            MatrizOut(iRows, 5) = ""
+        
+        ElseIf qtdCaracteres = 9 Then
+        
+            MatrizOut(iRows, 1) = "Servico nao faz parte do codigo NCM "
+        
+        ElseIf qtdCaracteres = 8 Then
+            
+            MatrizOut(iRows, 1) = "'" & Left$(cel, 2)
+            MatrizOut(iRows, 2) = "'" & Mid$(cel, 3, 2)
+            MatrizOut(iRows, 3) = "'" & Mid$(cel, 5, 2)
+            MatrizOut(iRows, 4) = "'" & Mid$(cel, 7, 1)
+            MatrizOut(iRows, 5) = "'" & Mid$(cel, 8, 1)
+        
+        ElseIf qtdCaracteres = 7 Then
+        
+            MatrizOut(iRows, 1) = "'" & Left$(cel, 2)
+            MatrizOut(iRows, 2) = "'" & Mid$(cel, 3, 2)
+            MatrizOut(iRows, 3) = "'" & Mid$(cel, 5, 2)
+            MatrizOut(iRows, 4) = "'" & Mid$(cel, 7, 1)
+        
+        ElseIf qtdCaracteres = 6 Then
+        
+            MatrizOut(iRows, 1) = "'" & Left$(cel, 2)
+            MatrizOut(iRows, 2) = "'" & Mid$(cel, 3, 2)
+            MatrizOut(iRows, 3) = "'" & Mid$(cel, 5, 2)
+        
+        ElseIf qtdCaracteres = 5 Then ' Formatando os Genéricos
+        
+            MatrizOut(iRows, 1) = "'" & Left$(cel, 2)
+            MatrizOut(iRows, 2) = "'" & Mid$(cel, 3, 2)
+            MatrizOut(iRows, 3) = "'" & Mid$(cel, 5, 1) ' caracter que representa os genericos
+        
+        ElseIf qtdCaracteres = 4 Then
+        
+            MatrizOut(iRows, 1) = "'" & Left$(cel, 2)
+            MatrizOut(iRows, 2) = "'" & Mid$(cel, 3, 2)
+        
+        ElseIf qtdCaracteres = 2 Then
+            
+            MatrizOut(iRows, 1) = "'" & Left$(cel, 2)
+        
+        ElseIf qtdCaracteres = 1 Then
+            
+            ' Adicionado um zero a frente do numero
+            cel = "'" & String(1, "0") & CStr(cel)
+          
+            MatrizOut(iRows, 1) = Left$(cel, 2)
+        End If
+        
+        Debug.Print "Acessando a celula na Linha: " & CStr(iRows)
+    
     Next iRows
     
-    
-    ' Percorrendo cada celula
-    For Each cel In rngNCM
-        
-        'valueCel = Trim(cel.Value)
-        valueCel = cel.Value
-        valueCel = Trim(valueCel)
-        valueCel = Replace(valueCel, ".", "")
-        valueCel = Replace(valueCel, ",", "")
-        valueCel = Replace(valueCel, " ", "")
-        
-        ' -------------------------------------------------------
-        ' 9 caracteres ? formato completo
-        ' -------------------------------------------------------
-        
-        If valueCel <> "" And Len(valueCel) = 9 Then
-            
-            If regexNcmNove.Test(valueCel) Then
-                Set match = regexNcmNove.Execute(valueCel)(0)
-            Else
-                GoTo TrataElse
-            End If
-            
-            regexIdentificarServico = match.SubMatches(0)
-            regexCapNcm = match.SubMatches(1)
-            regexPosNcm = match.SubMatches(2)
-            regexSubPosValue = match.SubMatches(3)
-            regexItemValue = match.SubMatches(4)
-            regexSubItemValue = match.SubMatches(5)
-            
-            cel.Offset(0, 1).Value = "Servico nao faz parte do Produto ou seja Sem NCM"
-            cel.Offset(0, 2).Value = ""
-            cel.Offset(0, 3).Value = ""
-            cel.Offset(0, 4).Value = ""
-            cel.Offset(0, 5).Value = ""
-            
-            valueCel = regexIdentificarServico & "." & regexCapNcm & "." & regexPosNcm & "." & regexSubPosValue & "." & regexItemValue & "." & regexSubItemValue
-            
-            cel.Value = CStr(valueCel)
-            
-            
-        ' -------------------------------------------------------
-        ' 8 caracteres ? formato completo
-        ' -------------------------------------------------------
-        ElseIf valueCel <> "" And Len(valueCel) = 8 Then
-        
-            If regexNcmOito.Test(valueCel) Then
-                Set match = regexNcmOito.Execute(valueCel)(0)
-            Else
-                GoTo TrataElse
-            End If
-        
-            regexCapNcm = match.SubMatches(0)
-            regexPosNcm = match.SubMatches(1)
-            regexSubPosValue = match.SubMatches(2)
-            regexItemValue = match.SubMatches(3)
-            regexSubItemValue = match.SubMatches(4)
-            
-            valueCel = regexCapNcm & "." & regexPosNcm & "." & regexSubPosValue & "." & regexItemValue & "." & regexSubItemValue
+    'Retornando a matriz formatada pela nossa funcao
+    ReadFormatarPlanilhaReducaoNcm = MatrizOut
 
-            cel.Offset(0, 1).Value = "'" & CStr(regexCapNcm)
-            cel.Offset(0, 2).Value = "'" & CStr(regexPosNcm)
-            cel.Offset(0, 3).Value = "'" & CStr(regexSubPosValue)
-            cel.Offset(0, 4).Value = "'" & CStr(regexItemValue)
-            cel.Offset(0, 5).Value = "'" & CStr(regexSubItemValue)
-            
-            
-            ' Formata tipo n?mero para string na exibi??o do Excel
-            cel.NumberFormat = "@"
-            
-            cel.Value = CStr(valueCel)
-            
-            
-        ' -------------------------------------------------------
-        ' 7 caracteres
-        ' -------------------------------------------------------
-        ElseIf valueCel <> "" And Len(valueCel) = 7 Then
-        
-            If regexNcmSete.Test(valueCel) Then
-                Set match = regexNcmSete.Execute(valueCel)(0)
-            Else
-                GoTo TrataElse
-            End If
-        
-            regexCapNcm = match.SubMatches(0)
-            regexPosNcm = match.SubMatches(1)
-            regexSubPosValue = match.SubMatches(2)
-            regexItemValue = match.SubMatches(3)
-            
-            cel.Offset(0, 1).Value = "'" & regexCapNcm
-            cel.Offset(0, 2).Value = "'" & regexPosNcm
-            cel.Offset(0, 3).Value = "'" & regexSubPosValue
-            cel.Offset(0, 4).Value = "'" & regexItemValue
-            cel.Offset(0, 5).Value = ""
-            
-            valueCel = regexCapNcm & "." & regexPosNcm & "." & regexSubPosValue & "." & regexItemValue
-            
-            ' Formata tipo n?mero para string na exibi??o do Excel
-            cel.NumberFormat = "@"
-            
-            cel.Value = CStr(valueCel)
-            
-        ' -------------------------------------------------------
-        ' 6 caracteres
-        ' -------------------------------------------------------
-        ElseIf valueCel <> "" And Len(valueCel) = 6 Then
-        
-            If regexNcmSeis.Test(valueCel) Then
-                Set match = regexNcmSeis.Execute(valueCel)(0)
-            Else
-                GoTo TrataElse
-            End If
-
-            regexCapNcm = match.SubMatches(0)
-            regexPosNcm = match.SubMatches(1)
-            regexSubPosValue = match.SubMatches(2)
-            
-            cel.Offset(0, 1).Value = "'" & regexCapNcm
-            cel.Offset(0, 2).Value = "'" & regexPosNcm
-            cel.Offset(0, 3).Value = "'" & regexSubPosValue
-            cel.Offset(0, 4).Value = ""
-            cel.Offset(0, 5).Value = ""
-                
-            valueCel = regexCapNcm & "." & regexPosNcm & "." & regexSubPosValue
-            
-            ' Formata tipo n?mero para string na exibi??o do Excel
-            cel.NumberFormat = "@"
-            
-            cel.Value = CStr(valueCel)
-        
-        ' -------------------------------------------------------
-        ' 5 caracteres -> Representando os gen?ricos
-        ' -------------------------------------------------------
-        
-        ElseIf valueCel <> "" And Len(valueCel) = 5 Then
-        
-            If regexNcmCinco.Test(valueCel) Then
-                    Set match = regexNcmCinco.Execute(valueCel)(0)
-                Else
-                    GoTo TrataElse
-                End If
-
-                regexCapNcm = match.SubMatches(0)
-                regexPosNcm = match.SubMatches(1)
-                regexSubPosValue = match.SubMatches(2)
-            
-                cel.Offset(0, 1).Value = "'" & regexCapNcm
-                cel.Offset(0, 2).Value = "'" & regexPosNcm
-                cel.Offset(0, 3).Value = "'" & regexSubPosValue
-                cel.Offset(0, 4).Value = ""
-                cel.Offset(0, 5).Value = ""
-                
-                valueCel = regexCapNcm & "." & regexPosNcm & "." & regexSubPosValue
-            
-                ' Formata tipo n?mero para string na exibi??o do Excel
-                cel.NumberFormat = "@"
-            
-                cel.Value = CStr(valueCel)
-                
-        ' -------------------------------------------------------
-        ' 4 caracteres
-        ' -------------------------------------------------------
-        ElseIf valueCel <> "" And Len(valueCel) = 4 Then
-            
-            ' Eu Guilherme Henrique n?o sei que Bruxaria ? Essa!
-            'valueCel = Replace(valueCel, ",", ".")
-            'valueCel = Replace(valueCel, ".", "")
-            
-            If regexNcmQuatro.Test(valueCel) Then
-                Set match = regexNcmQuatro.Execute(valueCel)(0)
-            Else
-                GoTo TrataElse
-            End If
-        
-            regexCapNcm = match.SubMatches(0)
-            regexPosNcm = match.SubMatches(1)
-            
-            
-            valueCel = regexCapNcm & "." & regexPosNcm
-            
-           ' Formata tipo n?mero para string na exibi??o do Excel
-            cel.NumberFormat = "@"
-            
-            cel.Value = CStr(valueCel)
-            
-            cel.Offset(0, 1).Value = "'" & regexCapNcm
-            cel.Offset(0, 2).Value = "'" & regexPosNcm
-            cel.Offset(0, 3).Value = ""
-            cel.Offset(0, 4).Value = ""
-            cel.Offset(0, 5).Value = ""
-
-        ' -------------------------------------------------------
-        ' 2 caracteres
-        ' -------------------------------------------------------
-        ElseIf valueCel <> "" And Len(valueCel) = 2 Then
-        
-            If regexNcmDois.Test(valueCel) Then
-                Set match = regexNcmDois.Execute(valueCel)(0)
-            Else
-                GoTo TrataElse
-            End If
-        
-            regexCapNcm = match.SubMatches(0)
-            
-            cel.Offset(0, 1).Value = "'" & regexCapNcm
-            cel.Offset(0, 2).Value = ""
-            cel.Offset(0, 3).Value = ""
-            cel.Offset(0, 4).Value = ""
-            cel.Offset(0, 5).Value = ""
-
-            cel.Value = CStr(valueCel)
-
-
-        ' -------------------------------------------------------
-        ' 1 caractere
-        ' -------------------------------------------------------
-        ElseIf valueCel <> "" And Len(valueCel) = 1 Then
-            
-            valueCel = "0" & valueCel
-            
-            If regexNcmDois.Test(valueCel) Then
-                Set match = regexNcmDois.Execute(valueCel)(0)
-            Else
-                GoTo TrataElse
-            End If
-        
-            regexCapNcm = match.SubMatches(0)
-            
-            cel.Offset(0, 1).Value = "'" & regexCapNcm
-            cel.Offset(0, 2).Value = ""
-            cel.Offset(0, 3).Value = ""
-            cel.Offset(0, 4).Value = ""
-            cel.Offset(0, 5).Value = ""
-
-            ' Formata tipo n?mero para string na exibi??o do Excel
-            cel.NumberFormat = "@"
-        
-            cel.Value = CStr(valueCel)
-        
-        Else
-            GoTo TrataElse
-        End If
-
-        GoTo Proximo
-
-TrataElse:
-        cel.Offset(0, 1).Value = ""
-        cel.Offset(0, 2).Value = ""
-        cel.Offset(0, 3).Value = ""
-        cel.Offset(0, 4).Value = ""
-        cel.Offset(0, 5).Value = ""
-    
-        ' Formata tipo n?mero para string na exibi??o do Excel
-        cel.NumberFormat = "@"
-        
-        cel.Value = CStr(valueCel)
-
-Proximo:
-    
-    Next cel
-    
-    MsgBox "Planilha ReducaoNCM formatada com sucesso! Partes do codigo capturados com sucessos."
-    
 End Function
 
 ' ===========================================================
@@ -584,6 +396,40 @@ Private Sub GravarInSheet( _
 End Sub
 
 
+' Sub rotina publica auxilar flexivel que vamos usar para gravar os dados de qualquer matriz
+Private Sub GravarInSheetReducaoNcm( _
+        ByVal nameSheet As String, _
+        ByVal indexStart As Long, _
+        ByVal indexColumn As Long)
+    
+    ' Criando uma Matriz de resultados com base na nossa funcao
+    Dim resultado As Variant
+        
+    resultado = ReadFormatarPlanilhaReducaoNcm
+    
+    ' materializnado um objeto planilha
+    Dim Sheet As Worksheet
+    
+    ' usando a nossa planilha
+    Set Sheet = Worksheets(nameSheet)
+    
+    ' Ativando a nossa planilha
+    
+    Sheet.Activate
+    
+    ' variavel que vai representar o numero da ultima linha
+    Dim lastRow As Long
+            
+    lastRow = Sheet.Cells(Sheet.rows.Count, indexColumn).End(xlUp).Row
+
+    Sheet.Range(Sheet.Cells(indexStart, indexColumn + 1), _
+             Sheet.Cells(lastRow, indexColumn + 5)).Value = resultado
+    
+    MsgBox "ReducaoNCM Formatada com Sucesso, bem como a distribuicao de cada item do codigo."
+
+End Sub
+
+
 Sub FormatarPlanilhasCruzarDados()
     
     
@@ -616,5 +462,10 @@ Sub FormatarPlanilhasCruzarDados()
     Else
         MsgBox "A planilha já esta na formatação adequada."
     End If
+            
+        MsgBox "Clique em OK para continuar a execucao."
+    
+    ' Funcao que Sempre vai formatar a planilha ReducaoNCM
+    Call GravarInSheetReducaoNcm(nameSheetPlanTwo, indexCellFirstColumnReducaoNCM, indexCellColumnReducaoNCM)
 
 End Sub
