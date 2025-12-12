@@ -36,19 +36,19 @@ Private Function FormatarPlanOne(ByVal nameSheet As String, Optional indexCellCa
             
                 ' Inserindo duas linhas no topo
                 For i = 1 To 2
-                    FormatarPlanOne.Rows("1:1").Insert
+                    FormatarPlanOne.rows("1:1").Insert
                 Next i
                     
-                ' Checa se os cabeçalhos já estão corretos
+                ' Checa se os cabe?alhos j? est?o corretos
                 If FormatarPlanOne.Cells(indexCellCacebalho, "C").Value = "Consta Simples Nacional" And _
                    FormatarPlanOne.Cells(indexCellCacebalho, "H").Value = "CAPITULO" Then
                    
-                    ' Planilha já formatada
-                    MsgBox "A Planilha já está no formato correto!"
+                    ' Planilha j? formatada
+                    MsgBox "A Planilha j? est? no formato correto!"
                     Exit Function
                 End If
                 
-                ' --- Caso contrário, insere todas as colunas e cabeçalhos ---
+                ' --- Caso contr?rio, insere todas as colunas e cabe?alhos ---
                 FormatarPlanOne.Columns("C").Insert
                 FormatarPlanOne.Cells(indexCellCacebalho, "C").Value = "Consta Simples Nacional"
                 
@@ -68,12 +68,16 @@ Private Function FormatarPlanOne(ByVal nameSheet As String, Optional indexCellCa
                 FormatarPlanOne.Cells(indexCellCacebalho, "L").Value = "SUBITEM"
                 
                 FormatarPlanOne.Columns("M").Insert
+                
+                ' Deixando da cor amarela
+                FormatarPlanOne.Columns("M").Interior.Color = vbYellow
+                
                 FormatarPlanOne.Cells(indexCellCacebalho, "M").Value = "REDUCAO"
                 
                 MsgBox "A Planilha foi formatada com sucesso!"
                     
             Else
-                MsgBox "A Planilha está vazia ou já está no formato correto!"
+                MsgBox "A Planilha esta vazia ou ja esta no formato correto!"
                 Exit Function
             End If
     
@@ -90,11 +94,11 @@ Error:
 
 End Function
 
-' Criando função que irá realizar a comparação e cruzar CNPJS, Atenção, aqui coloquei o valor padrão do segundo padrão
+' Criando funcao que irá realizar a comparacao e cruzar CNPJS, Atencao, aqui coloquei o valor padrao com o nome da segunda planilha
 ' Para explicitar que e opcional
-Private Function CruzarCnpjsWithCOllection(ByVal nameSheet As String, Optional sheetNameToCompare As String = nameSheetOne)
+Private Function CruzarCnpjsWithCOllection(ByVal nameSheet As String, Optional sheetNameToCompare As String = nameSheetOne) As Variant
     
-    Dim MyCollection As Collection
+    Dim MyCollection As collection
     
     ' Materializando o Objeto da nossa Planilha
     Dim Sheet As Worksheet
@@ -117,12 +121,25 @@ Private Function CruzarCnpjsWithCOllection(ByVal nameSheet As String, Optional s
     ' cnpj que vai ser comparado pela nossa Range Real e iterar sobre a mesma
     Dim cnpj As Variant
     
-    ' Vamos usar a Range para fazer as comparações e não a Matriz mais...
-    Dim rngCompare As Range
-    Dim cel As Range
+    ' Vamos usar a Range para fazer as compara??es e n?o a Matriz mais...
+    'Dim rngCompare As Range
+    'Dim cel As Range
+           
+    ' Vamos criar uma matriz atraves de uma range
+    Dim RangeToMatriz As Variant
+        
+    ' Matriz de saida da nossa funcao que vai gravar os dados na planilha.
+    Dim MatrizOut As Variant
     
+    ' celula das coordenadas da nossa Matriz de saida
+    Dim cel As Variant
+        
+    ' limites inferiores da nossa matriz de saida!
+    Dim iRows As Long
+    Dim iColumn As Long
+     
     ' Materializando a nossa Collection
-    Set MyCollection = New Collection
+    Set MyCollection = New collection
     
     ' Referenciando e Materializando a Classe Worksheet
     Set Sheet = Worksheets(nameSheet)
@@ -130,11 +147,13 @@ Private Function CruzarCnpjsWithCOllection(ByVal nameSheet As String, Optional s
     ' Ativando a nossa planilha
     Sheet.Activate
     
-    lastRow = Sheet.Cells(Sheet.Rows.Count, 1).End(xlUp).Row
+    lastRow = Sheet.Cells(Sheet.rows.Count, 1).End(xlUp).Row
     
-    ' Adquirindo todos os objetos ao redor da nossa range que n?o possui valor vazio
-    ' Pegando a primeira celula e tamb?m a ultima celula preenchida para fazer o nosso Range... Intervalo de celula
-    Matriz = Sheet.Range(Sheet.Cells(1, 1), Sheet.Cells(lastRow, 1)).CurrentRegion.Value
+    ' Adquirindo todos os objetos ao redor da nossa range que nao possui valor vazio
+    ' Pegando a primeira celula e tambem a ultima celula preenchida para fazer o nosso Range... Intervalo de celula
+    ' Matriz = Sheet.Range(Sheet.Cells(1, 1), Sheet.Cells(lastRow, 1)).CurrentRegion.Value -> funciona, mas deixei para fins didaticos
+    
+    Matriz = Sheet.Range(Sheet.Cells(1, 1), Sheet.Cells(lastRow, 2)).Value
     
     '  Desta dorma estamos pecorrendo cada linha e coluna, ou seja, a linha inteira e dentro dela cada Coluna
     ' LBound() + 1 -> Serve para pularmos o cabe?alho
@@ -165,10 +184,22 @@ Private Function CruzarCnpjsWithCOllection(ByVal nameSheet As String, Optional s
     
         Dim chave As String
         Dim linha As Variant
-
+        
+        
+        
         chave = NormalizeDoc(CStr(Matriz(i, 1)))   ' coluna A = chave
         linha = Matriz(i, 2)         ' coluna B = valor
-    
+        
+        
+        ' LEMBRANDO QUE COLLECTION NAO ACEITA CHAVES REPETIDAS! POR ISSO É NECESSARIO UMA VALIDACAO
+        ' PARA ADICIONAR UMA CHAVE A ESSA COLLECTION
+        
+        ' se já existe, apaga
+        If CollectionHasKey(MyCollection, chave) Then
+            MyCollection.Remove chave
+        End If
+        
+        ' adiciona o novo valor
         MyCollection.Add Item:=linha, key:=chave
         
         ' OBSERVACOES
@@ -196,59 +227,64 @@ Private Function CruzarCnpjsWithCOllection(ByVal nameSheet As String, Optional s
         '   COLUNA 2 -> valor da Collection
         ' ------------------------------------------------------------
         
-        ' Debug.Print "Acessando o valor -> " & CStr(linha) & " -> Da Chave: " & CStr(chave)
+        Debug.Print "Acessando o valor -> " & CStr(linha) & " -> Da Chave: " & CStr(chave)
     
     Next i
      
-    ' Passando o Objeto Collectio por refer?ncia para minha Funcao
-    Set CruzarCnpjsWithCOllection = MyCollection
-    
+    ' Passando o Objeto Collectio por referencia para minha Funcao
+    ' Set CruzarCnpjsWithCOllection = MyCollection
     
     Set SheetCompare = Worksheets(nameSheetOne)
     
     ' Ativadno a Sheet que possui os cnpjs a serem compados e cruzados.
     SheetCompare.Activate
     
-    ' Pegando as ultima linha Preenchida... Igorando as duas ultimas que não são imprtantes para a comparacao
-    lastRowToSheetCompare = SheetCompare.Cells(SheetCompare.Rows.Count, "A").End(xlUp).Row - 2
+    ' Pegando as ultima linha Preenchida... Igorando as duas ultimas que nao sao imprtantes para a comparacao
+    lastRowToSheetCompare = SheetCompare.Cells(SheetCompare.rows.Count, "A").End(xlUp).Row - 2
+       
+    ' Criando uma Matriz de Saida com redimensionamento afim de fazer a comparacao
     
-    Set rngCompare = SheetCompare.Range(SheetCompare.Cells(4, 2), SheetCompare.Cells(lastRowToSheetCompare, 2))
+    'Set rngCompare = SheetCompare.Range(SheetCompare.Cells(4, 2), SheetCompare.Cells(lastRowToSheetCompare, 2))
     
-    For Each cel In rngCompare
+    RangeToMatriz = SheetCompare.Range(SheetCompare.Cells(4, 2), SheetCompare.Cells(lastRowToSheetCompare, 3)).Value
     
-        cnpj = NormalizeDoc(CStr(cel.Value))
+    ' Iniciando a linha no primeiro index na primeira coluna
+    For iRows = 1 To UBound(RangeToMatriz, 1)
         
+        ' Acessando a ceula nas coordenadas... (index_linha,index_coluna)
+        cel = RangeToMatriz(iRows, 1)
+        
+        ' o cnpj vai ser normalizado
+        cnpj = NormalizeDoc(CStr(cel))
+        
+        ' Acessando o valor que esta na chave do meu cnpj
         If ExisteChave(MyCollection, CStr(cnpj)) Then
             
-            ' Usando o metodo offset para escrever o valor retornado pela nossa collection na celula ao lado
-            ' Se o cnpj existir...
-            cel.Offset(0, 1).Value = MyCollection(CStr(cnpj))   ' escreve ao lado
+            cel = MyCollection.Item(cnpj)
             
-            'Debug.Print "Encontrado: "; cnpj
-        
+             RangeToMatriz(iRows, 2) = cel
         Else
+            RangeToMatriz(iRows, 2) = "Nao encontrado"
             
-            cel.Offset(0, 1).Value = "Não encontrado"
-            
-            'Debug.Print "Não encontrado: "; cnpj
-        
+            'Debug.Print "Nao encontrado: "; cel
         End If
     
-    Next cel
-      
+    Next iRows
+          
+    CruzarCnpjsWithCOllection = RangeToMatriz
+          
 End Function
-
 
 ' Criando funcao auxiliar para normalizar os cnpjs de comparacao
 Private Function NormalizeDoc(ByVal valor As String) As String
     NormalizeDoc = Trim$(valor)
     NormalizeDoc = Replace(NormalizeDoc, vbTab, "")
-    NormalizeDoc = Replace(NormalizeDoc, Chr(160), "") ' espaço nao-quebrável
+    NormalizeDoc = Replace(NormalizeDoc, Chr(160), "") ' espaco nao-quebravel
 End Function
 
 
 ' Criando funcao auxiliar para verificar se existe o valor na nossa collection
-Private Function ExisteChave(col As Collection, chave As String) As Boolean
+Private Function ExisteChave(col As collection, chave As String) As Boolean
     
     On Error GoTo ErrHandler
         Dim tmp As Variant
@@ -282,7 +318,7 @@ Private Function FormatCnpjAndCpfColumnASheetConstaSn( _
     On Error GoTo 0
 
     If Sheet Is Nothing Then
-        MsgBox "A planilha '" & sheetNameToFormat & "' não existe.", vbCritical
+        MsgBox "A planilha '" & sheetNameToFormat & "' nao existe.", vbCritical
         Exit Function
     End If
 
@@ -295,19 +331,19 @@ Private Function FormatCnpjAndCpfColumnASheetConstaSn( _
 
     linha = 2
 
-    ' --- Loop ate encontrar célula vazia ---
+    ' --- Loop ate encontrar c?lula vazia ---
     Do While Trim(Sheet.Cells(linha, 1).Value) <> ""
 
         valor = CStr(Sheet.Cells(linha, 1).Value)
 
-        ' Remove qualquer caractere nao numérico
+        ' Remove qualquer caractere nao num?rico
         SomenteDigitos = Replace(valor, ".", "")
         SomenteDigitos = Replace(SomenteDigitos, "-", "")
         SomenteDigitos = Replace(SomenteDigitos, "/", "")
         SomenteDigitos = Replace(SomenteDigitos, " ", "")
         SomenteDigitos = Trim(SomenteDigitos)
 
-        ' --- Normalizacao: completa com zeros à esquerda ---
+        ' --- Normalizacao: completa com zeros ? esquerda ---
         If Len(SomenteDigitos) < 11 Then
             SomenteDigitos = String(11 - Len(SomenteDigitos), "0") & SomenteDigitos
         ElseIf Len(SomenteDigitos) > 11 And Len(SomenteDigitos) < 14 Then
@@ -334,8 +370,8 @@ Private Function FormatCnpjAndCpfColumnASheetConstaSn( _
                 Mid$(SomenteDigitos, 13, 2)
 
         Else
-            ' caso o valor nao seja cpf nem cnpj (mesmo após limpeza)
-            formatado = "Valor inválido"
+            ' caso o valor nao seja cpf nem cnpj (mesmo ap?s limpeza)
+            formatado = "Valor invalido"
         End If
 
         ' --- Escrita na celula ---
@@ -346,11 +382,57 @@ Private Function FormatCnpjAndCpfColumnASheetConstaSn( _
 
 End Function
 
+' FUNCAO AUXILIAR PARA COLLECTION DE CRUZAMENTO DE CNPJS
+
+Public Function CollectionHasKey(col As collection, key As String) As Boolean
+    Dim tmp As Variant
+    
+    On Error Resume Next
+    tmp = col.Item(key)
+    
+    If Err.Number = 0 Then
+        CollectionHasKey = True
+    Else
+        CollectionHasKey = False
+        Err.Clear
+    End If
+    
+    On Error GoTo 0
+End Function
+
+
+' CRIANDO UMA SUB AUXILIAR PARA A SUB PRINCIPAL, ELA VAI EXCUTAR A GRAVACAO DA MATRIZ PRONTA RETORNADA DA FUNCAO DE CRUZAMENTO
+Public Sub GravarCruzamento( _
+    ByVal nameSheet As String, _
+    Optional ByVal sheetNameToCompare As String = nameSheetOne)
+
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim resultado As Variant
+
+    ' 1. Chama a função que monta a matriz de saída
+    resultado = CruzarCnpjsWithCOllection(nameSheet, sheetNameToCompare)
+
+    ' 2. Seleciona a planilha onde deve gravar os dados
+    Set ws = Worksheets(sheetNameToCompare)
+
+    ' 3. Descobre onde essa matriz deve ser escrita
+    lastRow = ws.Cells(ws.rows.Count, "A").End(xlUp).Row - 2
+
+    ' 4. Grava a matriz inteira de uma vez
+    ws.Range( _
+        ws.Cells(4, 2), _
+        ws.Cells(lastRow, 3) _
+    ).Value = resultado
+
+    MsgBox "Cruzamento concluído com sucesso!", vbInformation
+
+End Sub
 
 Sub FormatarPlanilhaCruzarCnpjsAbaPrincipal()
     
     ' Definir a propriedade ScreenUpdating como False para ocultar as alteracoes enquanto elas sao feitas via codigo;
-    Application.ScreenUpdating = True ' Deixei True porque com False eu nao sei se foi ou nao formatado...
+    ' Application.ScreenUpdating = True ' Deixei True porque com False eu nao sei se foir ou nao formatado...
     
     ' Chamando a nossa funcao para ser executada
     Call FormatarPlanOne(nameSheetOne)
@@ -358,19 +440,20 @@ Sub FormatarPlanilhaCruzarCnpjsAbaPrincipal()
     ' Formatando os Cnpjs e Cpfs
     MsgBox ("Clique em OK para fazer o Cruzamento dos CNPJS")
     
-    Application.ScreenUpdating = False ' Agora Deixei False para agiilizar a execucao do código
+    Application.ScreenUpdating = False ' Agora Deixei False para agiilizar a execucao do c?digo
     
-    Application.Interactive = False ' Impedindo do usuario mexer no excel para evitar erros inesperados
+    ' Application.Interactive = False ' Impedindo do usuario mexer no excel para evitar erros inesperados
     
     Call FormatCnpjAndCpfColumnASheetConstaSn
     
+    ' Application.ScreenUpdating = True ' Reativando para mostrar as modificacoes feitas
+    ' Application.Interactive = True ' Reativando a interacao do usuario
+    
     ' Chamando a nossa Funcao Para CruzarCNPJS com COllection
-    Call CruzarCnpjsWithCOllection(nameSheetThow)
+    ' Call CruzarCnpjsWithCOllection(nameSheetThow)
 
-    Application.ScreenUpdating = True ' Reativando para mostrar as modificacoes feitas
-    Application.Interactive = True ' Reativando a interacao do usuario
-    
-    MsgBox ("Cruzamento dos CNPJS Realizados com Sucesso!")
-    
+
+   Call GravarCruzamento(nameSheetThow, nameSheetOne)
+
 
 End Sub

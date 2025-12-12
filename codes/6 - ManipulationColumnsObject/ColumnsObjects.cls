@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Option Explicit
 
-' O objeto Columns é um conjunto indexável de objetos Range,
+' O objeto Columns ï¿½ um conjunto indexï¿½vel de objetos Range,
 ' onde cada elemento corresponde a uma coluna inteira da planilha ou do Range referenciado.
 
 ' Formalmente:
@@ -19,14 +19,14 @@ Option Explicit
 
 ' E:
 
-' Worksheet.Columns -> coleção completa de colunas da planilha (Colunas Relativas ao Planilha Ativa)
-' Range.Columns -> coleção das colunas internas ao Range (Colunas Relativas ao Intervalo de Celulas )
+' Worksheet.Columns -> coleï¿½ï¿½o completa de colunas da planilha (Colunas Relativas ao Planilha Ativa)
+' Range.Columns -> coleï¿½ï¿½o das colunas internas ao Range (Colunas Relativas ao Intervalo de Celulas )
 
-' A DIFERENÇA FUNDAMENTAL ENTRE Columns E Cells
+' A DIFERENï¿½A FUNDAMENTAL ENTRE Columns E Cells
 
-' Cells -> Objeto matricial bidimensional. Sempre retorna uma única célula.
+' Cells -> Objeto matricial bidimensional. Sempre retorna uma ï¿½nica cï¿½lula.
 
-' Columns -> Objeto unidimensional de faixa vertical. Sempre retorna um Range vertical, da linha 1 à 1.048.576.
+' Columns -> Objeto unidimensional de faixa vertical. Sempre retorna um Range vertical, da linha 1 ï¿½ 1.048.576.
 
 Private Function ColumnRelativeSheet(ByVal nameSheet As String, Optional index_column As Variant = 1)
         
@@ -38,7 +38,7 @@ Private Function ColumnRelativeSheet(ByVal nameSheet As String, Optional index_c
 End Function
 
 
-' Usamos o Optional da função para indicar que é um parametro não obrigatorio,
+' Usamos o Optional da funï¿½ï¿½o para indicar que ï¿½ um parametro nï¿½o obrigatorio,
 ' Geralmente nao precisamos colocar valor padrao no tipo Variant, mas nas demais, precisa-se
 ' Ou declarar em algum canto internamente na funcao
 
@@ -49,7 +49,7 @@ Private Function ColumnRelativeObjectRange(ByVal interval As String, Optional in
     
     Set ColumnRelativeObjectRange = Range(interval).Columns(index_column)
     
-    MsgBox "Enredeço da Coluna: " & CStr(ColumnRelativeObjectRange.Address)
+    MsgBox "Enredeï¿½o da Coluna: " & CStr(ColumnRelativeObjectRange.Address)
 
 End Function
 
