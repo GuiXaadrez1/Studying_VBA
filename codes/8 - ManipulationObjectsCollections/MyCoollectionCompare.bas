@@ -74,12 +74,12 @@ Private Function GerarNiveisNCM(ByVal codigoNCM As String) As collection
     ncmNormalizado = NormalizarNCM(codigoNCM)
     
     ' Adiciona os níveis do mais específico para o mais genérico
-    If Len(ncmNormalizado) >= 8 Then collectionData.Add Left$(clean, 8)
-    If Len(ncmNormalizado) >= 7 Then collectionData.Add Left$(clean, 7)
-    If Len(ncmNormalizado) >= 6 Then collectionData.Add Left$(clean, 6)
-    If Len(ncmNormalizado) >= 5 Then collectionData.Add Left$(clean, 5) ' representa os códigos genericos
-    If Len(ncmNormalizado) >= 4 Then collectionData.Add Left$(clean, 4)
-    If Len(ncmNormalizado) >= 2 Then collectionData.Add Left$(clean, 2)
+    If Len(ncmNormalizado) >= 8 Then collectionData.Add Left$(ncmNormalizado, 8)
+    If Len(ncmNormalizado) >= 7 Then collectionData.Add Left$(ncmNormalizado, 7)
+    If Len(ncmNormalizado) >= 6 Then collectionData.Add Left$(ncmNormalizado, 6)
+    If Len(ncmNormalizado) >= 5 Then collectionData.Add Left$(ncmNormalizado, 5) ' representa os ncms genericos
+    If Len(ncmNormalizado) >= 4 Then collectionData.Add Left$(ncmNormalizado, 4)
+    If Len(ncmNormalizado) >= 2 Then collectionData.Add Left$(ncmNormalizado, 2)
     
 End Function
 
