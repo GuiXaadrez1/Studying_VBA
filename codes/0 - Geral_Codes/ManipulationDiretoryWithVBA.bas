@@ -10,6 +10,7 @@ Option Explicit ' Obriga a declaração de variáveis, evitando erros de digita�
 
 Const SheetActiveName As String = "UNIFICADO"
 Const patternPathDir As String = "Z:\CLIENTES ATIVOS"
+Const patternPathSheetDir As String = "SOMA DAS NOTAS FISCAIS - MASTER FILIAL - 2025.xlsx"
 
 
 
@@ -110,10 +111,10 @@ Private Function ListAllFilesTheMainDir(Optional ByVal pathDir As String = patte
     
     
     ' Iterando sobre a matriz resultante para debugs
-    For iRows = LBound(ResultsList, 1) To UBound(ResultsList, 1)
+    'For iRows = LBound(ResultsList, 1) To UBound(ResultsList, 1)
         ' Exibe o Código (Coluna 1) e o Caminho/Nome (Coluna 2)
-        Debug.Print "Linha " & iRows & " -> Código: " & ResultsList(iRows, 1) & " | Info: " & ResultsList(iRows, 2)
-    Next iRows
+        'Debug.Print "Linha " & iRows & " -> Código: " & ResultsList(iRows, 1) & " | Info: " & ResultsList(iRows, 2)
+    'Next iRows
 
     'Atribuindo a matriz preenchida ao retorno da função
     ListAllFilesTheMainDir = ResultsList
@@ -186,10 +187,10 @@ Private Function ListAllFilesTheSubDir(ByVal pathDir As String) As Variant
     Next file
     
     ' Iterando sobre a matriz resultante para debugs
-    For iRows = LBound(ResultsList, 1) To UBound(ResultsList, 1)
+    'For iRows = LBound(ResultsList, 1) To UBound(ResultsList, 1)
         ' Exibe o Código (Coluna 1) e o Caminho/Nome (Coluna 2)
-        Debug.Print "Linha " & iRows & " -> FolderName/FileName: " & ResultsList(iRows, 1) & " | Info: " & ResultsList(iRows, 2)
-    Next iRows
+        'Debug.Print "Linha " & iRows & " -> FolderName/FileName: " & ResultsList(iRows, 1) & " | Info: " & ResultsList(iRows, 2)
+    'Next iRows
 
     'Atribuindo a matriz preenchida ao retorno da função
     ListAllFilesTheSubDir = ResultsList
@@ -271,7 +272,12 @@ Public Sub ManipulationDir()
     
     ' variaveis que vao obter o limite da matriz resultante
     Dim iRows As Long
-     
+    'Dim iColumns As Long
+    
+    ' Criando Os segundos iteradores do segundo For de Procura
+    Dim i As Long
+    'Dim j As Long
+    
     ' representa as oastas relativas
     Dim RelativeSubPath As String
     
@@ -282,6 +288,10 @@ Public Sub ManipulationDir()
     ' obtem o ano vigente!
     Dim currentYear As Integer
         
+    Application.ScreenUpdating = False ' Desativado iteracoes do cod na planilha durante execucao do mesmo
+    
+     Application.DisplayAlerts = False ' Desativando as mensagens de alerta do excel
+    
     ResultMatriz = ListAllFilesTheMainDir
     
     currentYear = Year(Date)
@@ -315,17 +325,54 @@ Public Sub ManipulationDir()
                     
                     pathYearOptionalTwo = CStr(ResultMatriz(iRows, 2)) & "\DEPTO FISCAL" & "\IMPOSTOS" & "\IMPOSTOS" & " " & currentYear
                     
+                    ' Limpa a matriz para garantir que não use dados do cliente anterior
+                    MatrizSubDirResults = Empty
+                    
                     If ExistisFolder(pathYearOptionalOne) Then
                         
                         Debug.Print ""
                         
-                        ListAllFilesTheSubDir (pathYearOptionalOne)
+                         MatrizSubDirResults = ListAllFilesTheSubDir(pathYearOptionalOne)
+                                            
+                        For i = LBound(MatrizSubDirResults, 1) To UBound(MatrizSubDirResults, 1)
+                            
+                            If MatrizSubDirResults(i, 2) Like "*SOMA DAS NOTAS FISCAIS*" Then
+                                
+                                ' Workbooks.Open(MatrizSubDirResults(i, 2)).Activate
+                                Workbooks.Open (MatrizSubDirResults(i, 2))
+                                
+                                Debug.Print ""
+                                Debug.Print ""
+                                
+                                Debug.Print "Foi Acessado a pasta!"
+                                
+                                Exit For ' Encontrou? Para de procurar nesta pasta e volta para o loop de empresas
+                            End If
+                                                
+                        Next i
                         
                     ElseIf ExistisFolder(pathYearOptionalTwo) Then
                         
                         Debug.Print ""
                         
-                        ListAllFilesTheSubDir (pathYearOptionalTwo)
+                        MatrizSubDirResults = ListAllFilesTheSubDir(pathYearOptionalTwo)
+                        
+                        For i = LBound(MatrizSubDirResults, 1) To UBound(MatrizSubDirResults, 1)
+                            
+                            If MatrizSubDirResults(i, 2) Like "*SOMA DAS NOTAS FISCAIS*" Then
+                                ' Workbooks.Open(MatrizSubDirResults(i, 2)).Activate
+                                Workbooks.Open (MatrizSubDirResults(i, 2))
+                                
+                                Debug.Print ""
+                                Debug.Print ""
+                                
+                                Debug.Print "Foi Acessado a pasta!"
+                                
+            
+                                Exit For ' Encontrou? Para de procurar nesta pasta e volta para o loop de empresas
+                            End If
+                                                
+                        Next i
                         
                     Else
                         Debug.Print "Pasta de " & currentYear & " não encontrada para este cliente."
@@ -335,10 +382,10 @@ Public Sub ManipulationDir()
                 
             End If
                 
-            Exit For
+            ' Exit For
             
         Else
-            Exit For
+            ' Exit For
         End If
         
         Debug.Print ResultMatriz(iRows, 2)
